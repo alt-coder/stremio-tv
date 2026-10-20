@@ -2,7 +2,7 @@
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
         id="http://stremio.local/stremiotv"
-        version="0.1.0"
+        version="0.2.0"
         viewmodes="maximized">
   <tizen:application id="StremioTV01.StremioTV" package="StremioTV01" required_version="5.0" />
   <content src="index.html" />

@@ -1,46 +1,50 @@
 # Stremio TV
 
-TV-first Stremio client for Samsung Tizen, built on the Free TV TV shell.
+TV-first Stremio addon client for Samsung Tizen, built on the Free TV TV shell.
 The TV talks to Stremio addons directly — no addon server and no VM.
 
-## What works now
+## Working
 
-- Home rows from installed addon catalogs (Cinemeta seeded).
-- Detail page from addon `meta`.
-- Subtitle tracks from OpenSubtitles v3 (seeded).
-- Stream list from installed stream addons (add Comet/AIOStreams in Addons).
+- Home rows from addon catalogs (Cinemeta + Public Domain Movies seeded).
+- Detail from addon `meta`.
+- Subtitle tracks from OpenSubtitles v3.
+- Streams from installed stream addons (direct HTTP, external links and torrent
+  detection). Add Comet/AIOStreams in **Addons**.
+- Addon manager with full URL keyboard, remove, and a local private config.
+- D-pad focus, OK, hardware **Back** (`tizenhwkey` → Escape stack).
 - HTML5 player, subtitle overlay, manual subtitle sync.
-- D-pad navigation, Back/Escape, Tizen `hwkey-event`.
+- Tizen package with `tv.inputdevice` + `avplay` privileges.
 
 ## Addons
 
-First run seeds:
+Seeded:
 
 ```
 https://v3-cinemeta.strem.io/manifest.json
 https://opensubtitles-v3.strem.io/manifest.json
+https://watchhub.strem.io/manifest.json
+https://caching.stremio.net/publicdomainmovies.now.sh/manifest.json
 ```
 
-Add Comet/AIOStreams in **Addons** by pasting its manifest URL. It is stored in
-localStorage; no key is committed to this repo.
+Add Comet/AIOStreams in **Addons** on the TV, or copy
+`addons.local.example.js` to `addons.local.js` and put the private manifest URL
+there before building. `addons.local.js` is gitignored.
 
-## Run
+## Run / build
 
 ```bash
-npm start          # http://127.0.0.1:7018
+npm start
+bash scripts/build-tv-app.sh   # dist/StremioTV.wgt
 ```
 
-## Build Tizen WGT
+Install via TizenBrew Installer → Install from GitHub:
 
-```bash
-bash scripts/build-tv-app.sh
-# dist/StremioTV.wgt
+```
+alt-coder/stremio-tv
 ```
 
-Unsigned package; use TizenBrew Installer or Tizen Studio to sign/install.
+## Known next items
 
-## Next
-
-- AVPlay/TizenVideo native playback.
+- AVPlay/TizenVideo native playback for HEVC/MKV.
 - AVPlay sound-analysis waveform for on-device auto sync.
-- TV left rail/back-stack polish and stream picker details.
+- Full stream picker polish and library parity.

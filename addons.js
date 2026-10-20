@@ -12,7 +12,13 @@ import { store } from './store.js';
 const DEFAULT_ADDONS = [
   'https://v3-cinemeta.strem.io/manifest.json',
   'https://opensubtitles-v3.strem.io/manifest.json',
+  'https://watchhub.strem.io/manifest.json',
+  'https://caching.stremio.net/publicdomainmovies.now.sh/manifest.json',
 ];
+
+const LOCAL_ADDONS = (typeof window !== 'undefined' && Array.isArray(window.__STREMIO_ADDONS__))
+  ? window.__STREMIO_ADDONS__.filter((url) => typeof url === 'string' && /^https?:\/\//i.test(url))
+  : [];
 
 const GENRES = [
   ['action', 'Action'], ['adventure', 'Adventure'], ['animation', 'Animation'],
@@ -91,18 +97,23 @@ async function manifestFor(url) {
 
 async function loadAddons() {
   let saved = store.addons();
-  if (!saved.length) {
-    for (const url of DEFAULT_ADDONS) {
-      try {
-        const manifest = await manifestFor(url);
-        store.addAddon(url, manifest);
-      } catch (error) {
+  const seed = saved.length ? LOCAL_ADDONS : [...DEFAULT_ADDONS, ...LOCAL_ADDONS];
+  let changed = false;
+  for (const url of seed) {
+    if (saved.some((entry) => entry.url === url)) continue;
+    try {
+      const manifest = await manifestFor(url);
+      store.addAddon(url, manifest);
+      changed = true;
+    } catch (error) {
+      if (!saved.length) {
         // Offline first run: keep the URL so a later attempt can retry.
         store.addAddon(url, { name: new URL(url).host, id: url, types: [], resources: [] });
+        changed = true;
       }
     }
-    saved = store.addons();
   }
+  if (changed) saved = store.addons();
   const addons = [];
   for (const entry of saved) {
     try {
@@ -285,7 +296,7 @@ async function item(id, type = 'movie') {
     pageUrl: meta.url || '',
     streams: allStreams,
     subtitles: allSubs,
-    stream: allStreams[0] || null,
+    stream: allStreams.find((s) => typeof s.url === 'string') || allStreams[0] || null,
   };
 }
 

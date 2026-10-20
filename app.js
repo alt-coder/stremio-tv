@@ -365,6 +365,7 @@ async function renderAddons() {
     ${addons.length ? addons.map((a) => `<div class="addon-row" data-focus data-addon="${esc(a.url)}" tabindex="0">
       <div style="flex:1"><div class="addon-name">${esc(a.name)}</div><div class="addon-url">${esc(a.url)}</div></div>
       <div style="color:#9a9aae;font-size:.8rem">${esc((a.types || []).join(', '))}</div>
+      <button class="chip" data-focus data-removeaddon="${esc(a.url)}">Remove</button>
     </div>`).join('') : '<div class="empty">No addons yet. Paste a manifest URL above and press Add.</div>'}
   </div>`;
 }
@@ -466,14 +467,35 @@ function activate(el) {
     const item = JSON.parse(view.dataset.itemJson || '{}');
     const stream = item.streams?.[Number(el.dataset.stream)];
     if (!stream) return toast('Stream unavailable');
-    if (!stream.url) return toast(stream.externalUrl ? 'External link only' : 'This stream needs a torrent server');
-    item.stream = stream;
-    return playItem(item);
+    if (stream.url) {
+      item.stream = stream;
+      return playItem(item);
+    }
+    if (stream.externalUrl) {
+      window.open(stream.externalUrl, '_blank');
+      return;
+    }
+    if (stream.ytId) {
+      window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(stream.ytId)}`, '_blank');
+      return;
+    }
+    if (stream.infoHash) {
+      return toast('Torrent stream — this TV app needs a debrid/HTTP stream addon');
+    }
+    return toast('This stream has no playable URL');
   }
   if (el.dataset.play) {
     const item = JSON.parse(view.dataset.itemJson || '{}');
-    if (!item.stream?.url) return toast('No direct stream. Add a stream addon or pick a stream below.');
-    return playItem(item);
+    const direct = item.streams?.find((s) => typeof s.url === 'string');
+    if (direct) {
+      item.stream = direct;
+      return playItem(item);
+    }
+    if (item.streams?.[0]?.externalUrl) {
+      window.open(item.streams[0].externalUrl, '_blank');
+      return;
+    }
+    return toast('No direct stream. Add Comet/AIOStreams in Addons, or pick an external link below.');
   }
   if (el.dataset.list) {
     const item = JSON.parse(view.dataset.itemJson || '{}');
@@ -513,9 +535,13 @@ function activate(el) {
     return renderAddons();
   }
 
+  if (el.dataset.removeaddon) {
+    store.removeAddon(el.dataset.removeaddon);
+    toast('Addon removed');
+    return renderAddons();
+  }
   if (el.dataset.addon) {
-    // reserved: open the addon's catalog list
-    toast('Addon installed. Catalog rows coming next.');
+    toast('Addon installed');
     return;
   }
 }
