@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stremio TV</title>
+<link rel="stylesheet" href="style.css">
+<script>
+  /* On a TV there is no devtools: surface JS errors in the title bar. */
+  window.__tvErrors = [];
+  window.addEventListener('error', (e) => {
+    window.__tvErrors.push(String(e.message));
+    document.title = 'ERR ' + e.message;
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    const m = (e.reason && e.reason.message) || String(e.reason);
+    window.__tvErrors.push(m);
+    document.title = 'REJ ' + m;
+  });
+</script>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand"><span class="dot"></span>STREMIO TV</div>
+    <nav id="nav">
+      <button class="nav-item" data-nav="home">Home</button>
+      <button class="nav-item" data-nav="browse">Browse</button>
+      <button class="nav-item" data-nav="search">Search</button>
+      <button class="nav-item" data-nav="library">Library</button>
+      <button class="nav-item" data-nav="addons">Addons</button>
+      <button class="nav-item" data-nav="settings">Settings</button>
+    </nav>
+    <div class="top-right"><span id="clock"></span></div>
+  </header>
+  <main id="view" tabindex="-1"></main>
+  <div id="status" class="status hidden"></div>
+</div>
+
+<!-- Player -->
+<section id="playerLayer" class="layer hidden" aria-hidden="true">
+  <video id="video" playsinline preload="metadata"></video>
+  <div id="subs" class="subs" aria-live="off"></div>
+  <div id="playerUI" class="player-ui">
+    <div class="pu-top">
+      <div class="pu-title" id="puTitle"></div>
+      <div class="pu-badge" id="puBadge"></div>
+    </div>
+    <div class="pu-bottom">
+      <div class="pu-bar" id="puBar"><div class="pu-fill" id="puFill"></div><div class="pu-buffer" id="puBuffer"></div></div>
+      <div class="pu-row">
+        <span id="puTime">0:00</span>
+        <div class="pu-actions" id="puActions">
+          <button data-act="back">Back</button>
+          <button data-act="rw">−10s</button>
+          <button data-act="play">Play</button>
+          <button data-act="ff">+10s</button>
+          <button data-act="subs">Subtitles</button>
+          <button data-act="sync">Sync</button>
+        </div>
+        <span id="puDur">0:00</span>
+      </div>
+      <div class="pu-hint" id="puHint">OK play/pause · ← → seek · C subtitles · S sync · Back exit</div>
+    </div>
+  </div>
+</section>
+
+<!-- Visual subtitle sync editor -->
+<section id="syncLayer" class="layer hidden" aria-hidden="true">
+  <div class="sync-head">
+    <div>
+      <div class="sync-title">Subtitle sync</div>
+      <div class="sync-sub" id="syncFilm"></div>
+    </div>
+    <div class="sync-offset">
+      <span class="lbl">offset</span>
+      <span id="syncOffset">+0.00s</span>
+      <span class="mode" id="syncMode">fine 0.05s</span>
+    </div>
+    <div class="sync-chunks">
+      <button id="syncPrevChunk" class="chunk-btn" type="button">◀ chunk</button>
+      <button id="syncNextChunk" class="chunk-btn" type="button">chunk ▶</button>
+    </div>
+  </div>
+
+  <div class="sync-body">
+    <div class="lane-label">audio<span id="syncWin"></span></div>
+    <canvas id="waveCanvas" class="wave" height="180"></canvas>
+    <div class="lane-label">subtitles</div>
+    <div class="cue-lane" id="cueLane"></div>
+    <div class="ruler" id="ruler"></div>
+  </div>
+
+  <div class="sync-foot">
+    <div class="cue-info" id="syncCue"></div>
+    <div class="sync-keys">
+      <span><b>← →</b> move subs</span>
+      <span><b>↑ ↓</b> cue</span>
+      <span><b>OK</b> play this line</span>
+      <span><b>Red</b> fine/coarse</span>
+      <span><b>Green</b> zoom</span>
+      <span><b>Yellow</b> reset</span>
+      <span><b>Blue</b> save</span>
+      <span><b>Back</b> cancel</span>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="toast hidden"></div>
+<script type="module" src="app.js"></script>
+<script type="module">
+  if (new URLSearchParams(location.search).has('selftest')) import('./selftest.js');
+</script>
+</body>
+</html>

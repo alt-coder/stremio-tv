@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://stremio.local/stremiotv"
+        version="0.1.0"
+        viewmodes="maximized">
+  <tizen:application id="StremioTV01.StremioTV" package="StremioTV01" required_version="5.0" />
+  <content src="index.html" />
+  <name>Stremio TV</name>
+  <description>Stremio addon client with visual subtitle sync for Samsung TVs.</description>
+  <author href="https://www.stremio.com">Stremio TV</author>
+  <icon src="icon.png" />
+  <feature name="http://tizen.org/feature/network.internet" />
+  <tizen:privilege name="http://tizen.org/privilege/internet" />
+  <tizen:privilege name="http://tizen.org/privilege/avplay" />
+  <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice" />
+  <access origin="*" subdomains="true" />
+  <tizen:profile name="tv" />
+  <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable" />
+</widget>
